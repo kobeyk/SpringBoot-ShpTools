@@ -5,9 +5,7 @@ import com.appleyk.pojos.ShpDatas;
 import com.appleyk.pojos.ShpInfo;
 import com.appleyk.result.ResponseMessage;
 import com.appleyk.result.ResponseResult;
-import com.vividsolutions.jts.geom.*;
-import com.vividsolutions.jts.geom.Point;
-import com.vividsolutions.jts.geom.Polygon;
+import org.apache.commons.lang3.StringUtils;
 import org.geotools.data.*;
 import org.geotools.data.shapefile.ShapefileDataStore;
 import org.geotools.data.shapefile.ShapefileDataStoreFactory;
@@ -25,6 +23,9 @@ import org.geotools.styling.SLD;
 import org.geotools.styling.Style;
 import org.geotools.swing.JMapFrame;
 import org.geotools.swing.data.JFileDataStoreChooser;
+import org.locationtech.jts.geom.*;
+import org.locationtech.jts.geom.Point;
+import org.locationtech.jts.geom.Polygon;
 import org.opengis.feature.Property;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
@@ -38,47 +39,42 @@ import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+import java.text.SimpleDateFormat;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
 /**
- * <p>shapefile读写工具类</p>
+ * <p>ShapeFile文件读写工具类</p>
  * @author Appleyk
  * @blob https://blog.csdn.net/appleyk
  * @date Created on 上午 11:54 2018-10-12
  */
 public class ShpTools {
 
-
-    /**
-     * 集合对象构造器【自定义的】
-     */
+    /**几何对象构造器【自定义的】*/
     private  static GeometryCreator gCreator = GeometryCreator.getInstance();
 
-    /**
-     * 边界
-     */
+    /**边界*/
     private  static ReferencedEnvelope bounds;
 
-    // 画布的宽度
+    /**画布的宽度*/
     private static final int IMAGE_WIDTH = 2400;
 
-    // 画布的高度
+    /**画布的高度*/
     private static final int IMAGE_HEIGHT = 1200;
-
 
     /**
      * 通过shp文件路径，读取shp内容
-     * @param filePath
-     * @throws Exception
+     * @param filePath 文件路径
      */
     public static ShpDatas readShpByPath(String filePath,Integer limit) throws Exception {
 
         // 一个数据存储实现，允许从Shapefiles读取和写入
         ShapefileDataStore shpDataStore =  new ShapefileDataStore(new File(filePath).toURI().toURL());
         // 设置编码【防止中文乱码】
-        shpDataStore.setCharset(Charset.forName("UTF-8"));
+        shpDataStore.setCharset(StandardCharsets.UTF_8);
 
         // getTypeNames:获取所有地理图层，这里我只取第一个【如果是数据表，取出的就是表名】
         String typeName = shpDataStore.getTypeNames()[0];
@@ -99,10 +95,9 @@ public class ShpTools {
 
     /**
      * 根据数据源及图层名称拿到特征集合
-     * @param shpDataStore
-     * @param typeName
-     * @return
-     * @throws IOException
+     * @param shpDataStore shp数据存储对象
+     * @param typeName 图层名称
+     * @return FeatureCollection
      */
     private static FeatureCollection<SimpleFeatureType, SimpleFeature> getFeatures(ShapefileDataStore shpDataStore, String typeName) throws IOException {
 
@@ -117,9 +112,9 @@ public class ShpTools {
 
     /**
      * 构建shpDatas对象
-     * @param limit
-     * @param iterator
-     * @param shpDatas
+     * @param limit 要素查询限制数
+     * @param iterator 迭代器
+     * @param shpDatas shp封装的数据集
      */
     private static void buildShpDatas(Integer limit, FeatureIterator<SimpleFeature> iterator, ShpDatas shpDatas) {
         // 这里我们只迭代前limit个
@@ -137,9 +132,15 @@ public class ShpTools {
             Map<String,Object> prop = new HashMap<>();
             for (Property pro : p) {
                 String key = pro.getName().toString();
-                String val = pro.getValue().toString();
+                String val;
+                if ("java.util.Date".equals(pro.getType().getBinding().getName())){
+                    SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd");
+                    val  = pro.getValue() ==null ? "" : dateFormat.format(pro.getValue());
+                }else{
+                    val = pro.getValue()==null ?"":pro.getValue().toString();
+                }
                 prop.put(key, val);
-                System.out.println("key【字段】："+key+"\t||  value【值】："+val);
+                System.out.println("key【字段】："+key+"\t||value【值】："+val);
             }
             System.out.println("\n============================ 序号："+stop+"\n");
             shpDatas.addProp(prop);
@@ -149,8 +150,8 @@ public class ShpTools {
 
     /**
      * 将一个几何对象写进shapefile
-     * @param filePath
-     * @param geometry
+     * @param filePath 文件路径
+     * @param geometry 几何对象
      */
     public  static  void writeShpByGeom(String filePath, Geometry geometry) throws Exception{
 
@@ -171,19 +172,16 @@ public class ShpTools {
 
         // 写入
         writer.write();
-
         // 关闭
         writer.close();
-
         // 释放资源
         ds.dispose();
-
     }
 
 
     /**
      * 将一个几何对象写进shapefile
-     * @param shpInfo
+     * @param shpInfo shp信息
      */
     public  static ResponseResult writeShpByGeom(ShpInfo shpInfo) throws Exception{
 
@@ -226,13 +224,10 @@ public class ShpTools {
 
         // 写入
         writer.write();
-
         // 关闭
         writer.close();
-
         // 释放资源
         ds.dispose();
-
         // 返回创建成功后的shp文件路径
         return  new ResponseResult(ResponseMessage.OK,filePath);
 
@@ -240,10 +235,9 @@ public class ShpTools {
 
     /**
      * 拿到配置好的DataStore
-     * @param filePath
-     * @param geometry
-     * @return
-     * @throws IOException
+     * @param filePath 文件路径
+     * @param geometry 几何对象
+     * @return ShapefileDataStore
      */
     private static ShapefileDataStore getshpDS(String filePath, Geometry geometry) throws IOException {
         // 1.创建shape文件对象
@@ -277,9 +271,8 @@ public class ShpTools {
 
         // 设置此数据存储的特征类型
         ds.createSchema(tBuilder.buildFeatureType());
-
         // 设置编码
-        ds.setCharset(Charset.forName("UTF-8"));
+        ds.setCharset(StandardCharsets.UTF_8);
         return ds;
     }
 

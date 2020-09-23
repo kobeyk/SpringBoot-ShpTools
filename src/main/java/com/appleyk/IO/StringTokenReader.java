@@ -1,8 +1,9 @@
 package com.appleyk.IO;
 
-import com.vividsolutions.jts.geom.*;
-import com.vividsolutions.jts.io.ParseException;
-import com.vividsolutions.jts.util.Assert;
+
+import org.locationtech.jts.geom.*;
+import org.locationtech.jts.io.ParseException;
+import org.locationtech.jts.util.Assert;
 
 import java.io.IOException;
 import java.io.Reader;
@@ -154,17 +155,18 @@ public class StringTokenReader {
     }
 
     private Coordinate getPreciseCoordinate() throws IOException, ParseException {
-        Coordinate coord = new Coordinate();
-        coord.x = getNextNumber();
-        coord.y = getNextNumber();
+        Coordinate coordinate = new Coordinate();
+        coordinate.setX(getNextNumber());
+        coordinate.setY(getNextNumber());
         if (isNumberNext()) {
-            coord.z = getNextNumber();
+            coordinate.setZ(getNextNumber());
         }
         if (isNumberNext()) {
-            getNextNumber(); // ignore M value
+            // ignore M value
+            getNextNumber();
         }
-        precisionModel.makePrecise(coord);
-        return coord;
+        precisionModel.makePrecise(coordinate);
+        return coordinate;
     }
 
     private boolean isNumberNext() throws IOException {
@@ -198,6 +200,7 @@ public class StringTokenReader {
                         parseErrorWithLine("Invalid number: " + tokenizer.sval);
                     }
                 }
+                break;
             }
             default:{
 
@@ -633,7 +636,7 @@ public class StringTokenReader {
         return geometryFactory.createMultiPolygon(polygons.toArray(array));
     }
 
-	/**
+    /**
      * Creates a <code>GeometryCollection</code> using the next token in the
      * stream.
      * <p>

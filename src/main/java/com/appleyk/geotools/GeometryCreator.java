@@ -1,9 +1,9 @@
 package com.appleyk.geotools;
 
-import com.vividsolutions.jts.geom.*;
-import com.vividsolutions.jts.io.ParseException;
-import com.vividsolutions.jts.io.WKTReader;
 import org.geotools.geojson.geom.GeometryJSON;
+import org.locationtech.jts.geom.*;
+import org.locationtech.jts.io.ParseException;
+import org.locationtech.jts.io.WKTReader;
 
 import java.io.StringReader;
 import java.io.StringWriter;
@@ -58,7 +58,7 @@ public class GeometryCreator {
      * @return
      * @throws ParseException
      */
-    public Point createPointByWKT(String PointWKT) throws ParseException{
+    public Point createPointByWKT(String PointWKT) throws ParseException {
         WKTReader reader = new WKTReader(geometryFactory);
         return (Point) reader.read(PointWKT);
     }

@@ -15,7 +15,7 @@ import javax.servlet.http.HttpServletResponse;
  * @date Created on 下午 2018-10-24 16:27:22
  */
 @CrossOrigin
-@RequestMapping("/appleyk/api/v1.0/shp")
+@RequestMapping("/shper")
 @RestController
 public class ShpController {
 

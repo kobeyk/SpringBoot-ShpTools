@@ -13,14 +13,11 @@ import java.util.Map;
 public class ShpDatas {
 
     private String name;
-    /**
-     * 属性【字段】集合
-     */
+
+    /** 属性【字段】集合*/
     private List<Map<String,Object>> props;
 
-    /**
-     * shp文件路径地址
-     */
+    /** shp文件路径地址*/
     private String shpPath;
 
     public  ShpDatas(){
