@@ -60,7 +60,7 @@ public class ShpTools {
     private  static ReferencedEnvelope bounds;
 
     /**画布的宽度*/
-    private static final int IMAGE_WIDTH = 2400;
+    private static final int IMAGE_WIDTH = 1280;
 
     /**画布的高度*/
     private static final int IMAGE_HEIGHT = 1200;
@@ -319,18 +319,17 @@ public class ShpTools {
 
         // 6、设置容器的标题
         mapContent.setTitle("Appleyk's GeoTools");
-
         Color color1;
-        if(color == null || "".equals(color)){
+        if(color == null || "".equals(color.toLowerCase())){
             color1 = Color.BLACK;
-        }else if("red".equals(color)){
+        }else if("red".equals(color.toLowerCase())){
             color1 = Color.RED;
-        }else if("green".equals(color)){
+        }else if("green".equals(color.toLowerCase())){
             color1 = Color.GREEN;
-        }else if("blue".equals(color)){
+        }else if("blue".equals(color.toLowerCase())){
             color1 = Color.BLUE;
         }else{
-            color1 = Color.ORANGE;
+            color1 = Color.getColor(color);
         }
 
         // 7、创建简单样式 【颜色填充】
@@ -372,7 +371,7 @@ public class ShpTools {
         if(destImagePath == null || "".equals(destImagePath)){
             ImageIO.write(dumpImage, "png", response.getOutputStream());
         }else{
-            ImageIO.write(dumpImage, "png", new File(destImagePath+".png"));
+            ImageIO.write(dumpImage, "png", new File(destImagePath));
         }
     }
 

@@ -22,7 +22,6 @@ public class ShpController {
     @Autowired
     private ShpService shpService;
 
-
     @GetMapping("/hello")
     public  String sayHello(){
         return "Hello Appleyk's Controller !";
@@ -58,8 +57,6 @@ public class ShpController {
      * @param path shp文件路径
      * @param imagePath 如果imagePath不等于空，则shp文件转成图片文件存储进行存
      * @param color 渲染颜色
-     * @param response
-     * @throws Exception
      */
     @GetMapping("/show")
     public  void show(@RequestParam(value = "path",required = true) String path,
