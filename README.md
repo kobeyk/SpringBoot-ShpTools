@@ -16,13 +16,23 @@ spring-boot集成geotools工具包，实现将几何对象写进Shapefile【文�
 
 ### 1、shp文件内容读取
 
+图片地址：https://i.postimg.cc/L6gpv8Mg/shpreader.png
+
 ![shp文件内容读取](https://i.postimg.cc/L6gpv8Mg/shpreader.png)
 
 
 ### 2、shp文件渲染成图片格式并显示
 
+图片地址：https://i.postimg.cc/nzDHr4G2/shpreader2.png
+
 ![shp文件内容读取](https://i.postimg.cc/nzDHr4G2/shpreader2.png)
 
+
+图片地址：https://i.postimg.cc/D0GdxMdG/shpreader3.png
+
 ![shp文件内容读取](https://i.postimg.cc/D0GdxMdG/shpreader3.png)
+
+
+图片地址：https://i.postimg.cc/d0KM6b22/shpreader5.png
 
 ![shp文件内容读取](https://i.postimg.cc/d0KM6b22/shpreader5.png)
