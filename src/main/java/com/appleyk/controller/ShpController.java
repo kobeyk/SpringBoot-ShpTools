@@ -36,7 +36,7 @@ public class ShpController {
      */
     @PostMapping("/write")
     public  ResponseResult write(@RequestBody  ShpInfo shpInfo) throws  Exception{
-       return  shpService.writeShp(shpInfo);
+        return  shpService.writeShp(shpInfo);
     }
 
     /**
@@ -48,8 +48,8 @@ public class ShpController {
      */
     @GetMapping("/query")
     public ResponseResult  query(@RequestParam(value = "path",required = true) String shpFilePath,
-                                   @RequestParam(value = "limit",required = false,defaultValue = "10") Integer limit ) throws  Exception{
-            return  shpService.getShpDatas(shpFilePath,limit);
+                                 @RequestParam(value = "limit",required = false,defaultValue = "10") Integer limit ) throws  Exception{
+        return  shpService.getShpDatas(shpFilePath,limit);
     }
 
     /**
@@ -63,7 +63,6 @@ public class ShpController {
                       @RequestParam(value = "imagePath",required = false) String imagePath,
                       @RequestParam(value = "color",required = false) String color,
                       HttpServletResponse response) throws  Exception{
-
         // 设置响应消息的类型
         response.setContentType("image/png");
 
@@ -73,5 +72,4 @@ public class ShpController {
         response.setDateHeader("Expires", 0);
         shpService.showShp(path, imagePath,color ,response);
     }
-
 }

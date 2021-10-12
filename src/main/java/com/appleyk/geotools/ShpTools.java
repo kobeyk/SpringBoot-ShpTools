@@ -5,7 +5,6 @@ import com.appleyk.pojos.ShpDatas;
 import com.appleyk.pojos.ShpInfo;
 import com.appleyk.result.ResponseMessage;
 import com.appleyk.result.ResponseResult;
-import org.apache.commons.lang3.StringUtils;
 import org.geotools.data.*;
 import org.geotools.data.shapefile.ShapefileDataStore;
 import org.geotools.data.shapefile.ShapefileDataStoreFactory;
@@ -23,9 +22,9 @@ import org.geotools.styling.SLD;
 import org.geotools.styling.Style;
 import org.geotools.swing.JMapFrame;
 import org.geotools.swing.data.JFileDataStoreChooser;
-import org.locationtech.jts.geom.*;
 import org.locationtech.jts.geom.Point;
 import org.locationtech.jts.geom.Polygon;
+import org.locationtech.jts.geom.*;
 import org.opengis.feature.Property;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
@@ -60,10 +59,10 @@ public class ShpTools {
     private  static ReferencedEnvelope bounds;
 
     /**画布的宽度*/
-    private static final int IMAGE_WIDTH = 1280;
+    private static final int IMAGE_WIDTH = 256;
 
     /**画布的高度*/
-    private static final int IMAGE_HEIGHT = 1200;
+    private static final int IMAGE_HEIGHT = 256;
 
     /**
      * 通过shp文件路径，读取shp内容
@@ -341,10 +340,10 @@ public class ShpTools {
         // 9、将显示添加进map容器
         mapContent.addLayer(layer);
 
-        return  mapContent;
+        return mapContent;
     }
 
-    public  static  void showMap(MapContent mapContent){
+    public static void showMap(MapContent mapContent){
         JMapFrame.showMap(mapContent);
     }
 
@@ -356,15 +355,14 @@ public class ShpTools {
      * @throws Exception
      */
     public static void shp2Image(String shpFilePath,String destImagePath,String color, HttpServletResponse response) throws  Exception{
-
-        // 流渲染器
+        /**流渲染器*/
         StreamingRenderer renderer = new StreamingRenderer();
         MapContent mapContent = getMapContentByPath(shpFilePath,false,color );
         renderer.setMapContent(mapContent);
         Rectangle imageBounds = new Rectangle(0, 0, IMAGE_WIDTH, IMAGE_HEIGHT);
-        BufferedImage dumpImage = new BufferedImage(IMAGE_WIDTH, IMAGE_HEIGHT, BufferedImage.TYPE_INT_RGB);
+        /**透明颜色*/
+        BufferedImage dumpImage = new BufferedImage(IMAGE_WIDTH, IMAGE_HEIGHT, BufferedImage.TYPE_INT_ARGB);
         Graphics2D g2d = dumpImage.createGraphics();
-        g2d.fillRect(0, 0, IMAGE_WIDTH, IMAGE_HEIGHT);
         g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         renderer.paint(g2d, imageBounds, bounds);
         g2d.dispose();
