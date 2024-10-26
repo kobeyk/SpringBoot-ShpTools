@@ -321,6 +321,7 @@ public class ShpTools {
         BufferedImage image = new BufferedImage(rowSize, colSize, BufferedImage.TYPE_INT_RGB);
         Graphics2D gr = image.createGraphics();
         gr.setBackground(Color.BLACK);
+        /**消除画图锯齿*/
         gr.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         renderer.paint(gr, imageBounds, bounds);
         gr.dispose();
