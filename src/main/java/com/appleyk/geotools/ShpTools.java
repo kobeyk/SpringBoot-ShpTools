@@ -386,7 +386,7 @@ public class ShpTools {
             color1 = Color.BLACK;
         }
 //        Stylesheet ss = CssParser.parse(String.format("* { fill: %s ;}","#00ffa6"));
-        Stylesheet ss = CssParser.parse(String.format("* { stroke: %s ;}","#00ffa6"));
+        Stylesheet ss = CssParser.parse(String.format("* { stroke: %s ;stroke-width:2.5;}","#00ffa6"));
         CssTranslator translator = new CssTranslator();
         Style style = (Style) translator.translate(ss);
 
