@@ -18,8 +18,10 @@ import org.geotools.map.Layer;
 import org.geotools.map.MapContent;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.geotools.renderer.lite.StreamingRenderer;
-import org.geotools.styling.SLD;
 import org.geotools.styling.Style;
+import org.geotools.styling.css.CssParser;
+import org.geotools.styling.css.CssTranslator;
+import org.geotools.styling.css.Stylesheet;
 import org.geotools.swing.JMapFrame;
 import org.geotools.swing.data.JFileDataStoreChooser;
 import org.locationtech.jts.geom.Point;
@@ -28,6 +30,7 @@ import org.locationtech.jts.geom.*;
 import org.opengis.feature.Property;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
+import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.springframework.util.ResourceUtils;
 
 import javax.imageio.ImageIO;
@@ -275,13 +278,63 @@ public class ShpTools {
         return ds;
     }
 
+    public static void showMap(MapContent mapContent){
+        JMapFrame.showMap(mapContent);
+    }
+
+    /**
+     * shp文件转Image【格式定png】
+     * @param shpFilePath shp目标文件
+     * @param destImagePath 转成图片的文件 == 如果没有，转成的图片写进response输出流里
+     * @param response 响应流
+     * @throws Exception
+     */
+    public static void shp2Image(String shpFilePath,String destImagePath,String color, HttpServletResponse response) throws  Exception{
+        /**流渲染器*/
+        StreamingRenderer renderer = new StreamingRenderer();
+        MapContent mapContent = getMapContentByPath(shpFilePath,false,color );
+        renderer.setMapContent(mapContent);
+        Rectangle imageBounds = new Rectangle(0, 0, IMAGE_WIDTH, IMAGE_HEIGHT);
+        /**透明颜色*/
+        BufferedImage dumpImage = new BufferedImage(IMAGE_WIDTH, IMAGE_HEIGHT, BufferedImage.TYPE_INT_RGB);
+        Graphics2D g2d = dumpImage.createGraphics();
+        g2d.setBackground(Color.BLACK);
+        g2d.clearRect(0, 0, IMAGE_WIDTH, IMAGE_HEIGHT);
+//        g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        renderer.paint(g2d, imageBounds, bounds);
+        g2d.dispose();
+        if(destImagePath == null || "".equals(destImagePath)){
+            ImageIO.write(dumpImage, "png", response.getOutputStream());
+        }else{
+            ImageIO.write(dumpImage, "png", new File(destImagePath));
+        }
+    }
+
+
+    public static void shp2Image(String shpFilePath,String destImagePath,String color, int rowSize,int colSize) throws  Exception{
+        /**流渲染器*/
+        StreamingRenderer renderer = new StreamingRenderer();
+        MapContent mapContent = getMapContentByPath(shpFilePath,false,color );
+        renderer.setMapContent(mapContent);
+        Rectangle imageBounds = new Rectangle(rowSize, colSize);
+        /**透明颜色*/
+        BufferedImage image = new BufferedImage(rowSize, colSize, BufferedImage.TYPE_INT_RGB);
+        Graphics2D gr = image.createGraphics();
+        gr.setBackground(Color.BLACK);
+        gr.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        renderer.paint(gr, imageBounds, bounds);
+        gr.dispose();
+        ImageIO.write(image, "png", new File(destImagePath));
+    }
+
+
     /**
      * 打开shp文件,获取地图内容
      * @param filePath  文件路径
      * @param isOpenByChoose 是否自定义打开shp文件
      * @throws Exception
      */
-    public static  MapContent getMapContentByPath(String filePath,boolean isOpenByChoose,String color) throws  Exception{
+    public static MapContent getMapContentByPath(String filePath,boolean isOpenByChoose,String color) throws  Exception{
 
         File file;
         if(isOpenByChoose){
@@ -311,7 +364,9 @@ public class ShpTools {
         // 4、以java对象的方式访问地理信息 --    简单地理要素
         SimpleFeatureSource featureSource = store.getFeatureSource();
 
-        bounds = featureSource.getBounds();
+//        bounds = featureSource.getBounds();
+        CoordinateReferenceSystem crs = DefaultGeographicCRS.WGS84;
+        bounds = new ReferencedEnvelope(121.33195638656616,121.33517503738403,31.192502975463817,31.196794509887646,crs);
 
         // 5、创建映射内容，并将我们的shapfile添加进去
         MapContent mapContent = new MapContent();
@@ -328,11 +383,15 @@ public class ShpTools {
         }else if("blue".equals(color.toLowerCase())){
             color1 = Color.BLUE;
         }else{
-            color1 = Color.getColor(color);
+            color1 = Color.BLACK;
         }
+//        Stylesheet ss = CssParser.parse(String.format("* { fill: %s ;}","#00ffa6"));
+        Stylesheet ss = CssParser.parse(String.format("* { stroke: %s ;}","#00ffa6"));
+        CssTranslator translator = new CssTranslator();
+        Style style = (Style) translator.translate(ss);
 
         // 7、创建简单样式 【颜色填充】
-        Style style = SLD.createSimpleStyle(featureSource.getSchema(),color1);
+//        Style style = SLD.createSimpleStyle(featureSource.getSchema(),color1);
 
         // 8、显示【shapfile地理信息+样式】
         Layer layer = new FeatureLayer(featureSource, style);
@@ -343,35 +402,6 @@ public class ShpTools {
         return mapContent;
     }
 
-    public static void showMap(MapContent mapContent){
-        JMapFrame.showMap(mapContent);
-    }
-
-    /**
-     * shp文件转Image【格式定png】
-     * @param shpFilePath shp目标文件
-     * @param destImagePath 转成图片的文件 == 如果没有，转成的图片写进response输出流里
-     * @param response 响应流
-     * @throws Exception
-     */
-    public static void shp2Image(String shpFilePath,String destImagePath,String color, HttpServletResponse response) throws  Exception{
-        /**流渲染器*/
-        StreamingRenderer renderer = new StreamingRenderer();
-        MapContent mapContent = getMapContentByPath(shpFilePath,false,color );
-        renderer.setMapContent(mapContent);
-        Rectangle imageBounds = new Rectangle(0, 0, IMAGE_WIDTH, IMAGE_HEIGHT);
-        /**透明颜色*/
-        BufferedImage dumpImage = new BufferedImage(IMAGE_WIDTH, IMAGE_HEIGHT, BufferedImage.TYPE_INT_ARGB);
-        Graphics2D g2d = dumpImage.createGraphics();
-        g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-        renderer.paint(g2d, imageBounds, bounds);
-        g2d.dispose();
-        if(destImagePath == null || "".equals(destImagePath)){
-            ImageIO.write(dumpImage, "png", response.getOutputStream());
-        }else{
-            ImageIO.write(dumpImage, "png", new File(destImagePath));
-        }
-    }
 
     public static void main(String[] args) throws  Exception{
 

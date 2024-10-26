@@ -96,7 +96,17 @@
             <artifactId>gt-geojson</artifactId>
             <version>${geotools.version}</version>
         </dependency>
-
+        <dependency>
+            <groupId>org.geotools</groupId>
+            <artifactId>gt-render</artifactId>
+            <version>${geotools.version}</version>
+        </dependency>
+        <!--css样式-->
+        <dependency>
+            <groupId>org.geotools</groupId>
+            <artifactId>gt-css</artifactId>
+            <version>${geotools.version}</version>
+        </dependency>
         <!-- jackson -->
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
